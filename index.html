@@ -1,0 +1,75 @@
+<HTML>
+
+<style>
+canvas {
+	display:block;
+	background:black;
+	user-select:none;
+	margin-top:100px;
+}
+*{
+	margin: 0;
+   	padding: 0;
+}
+</style>
+
+<center>
+<canvas id='gamewindow' width = '128' height = '64'></canvas>
+</center>
+<script src='controls.js'></script>
+
+<script>
+
+const SCALE = 5;
+
+const COLORS = {
+white	:'white',
+black	:'black',
+red	:'#f83800',
+pink	:'#f87858',
+green	:'#00b800', 
+Lgreen	:'#b8f818',  
+Dgreen	:'#007800', 
+orange	:'#f8b800',
+Dgrey	:'#787878',
+cyan	:'#a4e4fc', 
+}
+
+const SPRITES = {
+
+player	:
+	[
+	[],[],[]
+	]
+
+
+
+}
+
+var canvas = document.getElementById('gamewindow');
+var ctx = canvas.getContext('2d');
+canvas.height *= SCALE;
+canvas.width  *= SCALE;
+ctx.scale(SCALE,SCALE);
+
+
+
+
+
+
+function updateGame(){}
+function drawGame(){}
+
+function mainloop(){
+ctx.clearRect(0,0,canvas.width,canvas.height)
+updateGame();
+drawGame();
+requestAnimationFrame(mainloop)
+}
+mainloop()
+
+
+
+
+
+</script>
