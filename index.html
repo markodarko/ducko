@@ -19,7 +19,7 @@ canvas {
 
 <script>
 
-const SCALE = 5, SPRITE_WIDTH = 8;
+const SCALE = 5, SPRITE_WIDTH = 8*SCALE;
 
 const COLORS = {
 white	:'white',
@@ -34,67 +34,107 @@ Dgrey	:'#787878',
 cyan	:'#a4e4fc', 
 }
 
-
-const SPRITES = {
-
-player	:
-	[
-	[4,4]
-	],
-wall	:
-	[
-	[0,1,7,3,'red'],[0,5,3,3,'red'],[4,5,4,3,'red']
-	],
-wall2	:
-	[
-	[-1,-1,10,10,'black'],[0,0,8,8,'red'],[1,1,6,6,'black'],[2,2,4,4,'red']
-	]
-}
-
 class Tile{
   constructor(img){
 	this.img = img;
   }
-  drawImg(x=0,y=0){
-	this.img.forEach(block => {
-		ctx.save()
-		ctx.translate(x,y)
-		ctx.fillStyle = block[4]
-		ctx.fillRect(block[0],block[1],block[2],block[3])
-		ctx.restore()
-	})
+  drawImg(x=0,y=0,color=['black','red'],frame=0){
+	this.img[frame].forEach(block => {
+		ctx.fillStyle = color[block[4]]
+		ctx.fillRect(block[0]+x,block[1]+y,block[2],block[3])
+	}) 
   };
 }
 
 class Sprite extends Tile{
-  constructor(img,speed=0,frame=0){
-	super(img)
+  constructor(img,speed=30,frame=0){
+	super(img);
 	this.frame = frame;
-	this.maxFrame = img.length;
+	this.maxFrame = img.frames;
 	this.speed = speed;
 	this.time = 0;
   }
-  updateFrame(){};
-  
+  updateFrame(){
+	if (this.time >= this.speed) {
+	  this.time = 0;
+	  this.frame = (this.frame+1)%this.maxFrame;
+	}else this.time++
+  };
 }
 
+const IMAGES = {
 
-class Actor{
-  constructor(){
-	this.x = 0
-	this.y = 0
+player	:
+	{
+	frames:2,
+	0:[[1,1,6,2,0] ,[2,1,4,4,0],[3,-2,2,4,0],[2,-3,1,1,0], 
+	   [4,-1,2,1,1],[0,2,1,2,1],[7,2,1,2,1] ,[2,5,1,1,1],[5,5,1,2,1],[1,6,3,1,1],[4,7,3,1,1]
+	  ],
+	1:[[1,2,6,2,0] ,[2,1,4,4,0],[3,-3,2,4,0],[2,-4,1,1,0], 
+	   [4,-2,2,1,1],[0,3,1,2,1],[7,3,1,2,1] ,[2,5,1,2,1],[5,5,1,2,1],[1,7,3,1,1],[4,6,3,1,1]
+	  ]
+	},
+wall	:
+	[[
+	[0,1,7,3,1],[0,5,3,3,1],[4,5,4,3,1]
+	]],
+wall2	:
+	[[
+	[-1,-1,10,10,0],[0,0,8,8,1],[1,1,6,6,0],[2,2,4,4,1]
+	]],
+spikeUP	:
+	{
+	frames:2,
+	0:[[1,1,3,3,1],[2,4,1,2,1],[5,1,3,2,1],[6,3,1,2,1]],
+	1:[[1,1,3,2,1],[2,3,1,2,1],[5,1,3,3,1],[6,4,1,2,1]]
+	},
+spikeDWN:
+	{
+	frames:2,
+	0:[[1,5,3,3,1],[2,3,1,2,1],[5,6,3,2,1],[6,4,1,2,1]],
+	1:[[1,6,3,2,1],[2,4,1,2,1],[5,5,3,3,1],[6,3,1,2,1]]
+	},
+spikeL	:
+	{
+	frames:2,
+	0:[[1,1,3,3,1],[2,4,1,2,1],[5,1,3,2,1],[6,3,1,2,1]],
+	1:[[1,1,3,2,1],[2,3,1,2,1],[5,1,3,3,1],[6,4,1,2,1]]
+	},
+spikeR	:
+	{
+	frames:2,
+	0:[[1,1,3,3,1],[2,4,1,2,1],[5,1,3,2,1],[6,3,1,2,1]],
+	1:[[1,1,3,2,1],[2,3,1,2,1],[5,1,3,3,1],[6,4,1,2,1]]
+	},
+
+}
+
+const SPRITES = {
+
+player	:new Sprite(IMAGES.player),
+wall	:new Tile(IMAGES.wall),
+wall2	:new Tile(IMAGES.wall2),
+spikeUP	:new Sprite(IMAGES.spikeUP),
+spikeDWN:new Sprite(IMAGES.spikeDWN)
+
+}
+
+class Hero{
+  constructor(x,y){
+	this.sprite = SPRITES.player;
+	this.x = x;
+	this.y = y;
+	this.colors = [COLORS.Dgrey,COLORS.orange];
   }
   draw(){
-	ctx.fillStyle = 'white';
-	ctx.fillRect(this.x,this.y,SPRITE_WIDTH,SPRITE_WIDTH)
+	this.sprite.updateFrame();
+	this.sprite.drawImg(32,32,this.colors,this.sprite.frame);
 
   };
-  update(){};
+  update(){
+  };
 }
 
-class Player extends Actor{
-
-}
 
 var canvas = document.getElementById('gamewindow');
 var ctx = canvas.getContext('2d');
@@ -103,16 +143,29 @@ canvas.width  *= SCALE;
 ctx.scale(SCALE,SCALE);
 
 
-function updateGame(){}
+function updateGame(){
+SPRITES.spikeUP.updateFrame()
+SPRITES.spikeDWN.updateFrame()
+}
 
 function drawGame(){
-//hero.draw()
-obj.drawImg(8,0)
-obj.drawImg(16,0)
-obj.drawImg(24,0)
-obj.drawImg(32,0)
-test.drawImg()
-test.drawImg(40,0)
+player.draw()
+SPRITES.wall.drawImg(8,0,[COLORS.black,COLORS.red])
+SPRITES.wall.drawImg(16,0,[COLORS.black,COLORS.red])
+SPRITES.wall.drawImg(24,0,[COLORS.black,COLORS.red])
+SPRITES.wall.drawImg(0,8,[COLORS.black,COLORS.red])
+SPRITES.wall.drawImg(0,16,[COLORS.black,COLORS.red])
+SPRITES.wall.drawImg(0,24,[COLORS.black,COLORS.red])
+SPRITES.wall.drawImg(0,32,[COLORS.black,COLORS.red])
+SPRITES.wall.drawImg(0,40,[COLORS.black,COLORS.red])
+SPRITES.wall.drawImg(0,48,[COLORS.black,COLORS.red])
+SPRITES.wall.drawImg(8,56,[COLORS.black,COLORS.red])
+SPRITES.wall.drawImg(16,56,[COLORS.black,COLORS.red])
+SPRITES.wall2.drawImg(0,56,[COLORS.black,COLORS.red])
+SPRITES.wall2.drawImg(0,0,[COLORS.black,COLORS.red])
+SPRITES.wall2.drawImg(32,0,[COLORS.black,COLORS.red])
+SPRITES.spikeUP.drawImg(32,8,[COLORS.black,COLORS.white],SPRITES.spikeUP.frame)
+SPRITES.spikeDWN.drawImg(16,48,[COLORS.black,COLORS.white],SPRITES.spikeDWN.frame)
 
 }
 
@@ -122,9 +175,7 @@ updateGame();
 drawGame();
 requestAnimationFrame(mainloop)
 }
-obj = new Tile(SPRITES.wall)
-test = new Tile(SPRITES.wall2)
-hero = new Player();
+player = new Hero(4,4)
 mainloop()
 
 
