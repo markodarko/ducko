@@ -67,10 +67,11 @@ const SPRITES = {
 
 player	:new Sprite(IMAGES.player),
 wall	:new Sprite(IMAGES.wall),
-wall2	:new Sprite(IMAGES.wall,0,1),
 spikeUP	:new Sprite(IMAGES.spikeUP),
-spikeDWN:new Sprite(IMAGES.spikeDWN)
-
+spikeDWN:new Sprite(IMAGES.spikeDWN),
+spikeR	:new Sprite(IMAGES.spikeR),
+spikeL	:new Sprite(IMAGES.spikeL),
+zombie	:new Sprite(IMAGES.zombie)
 }
 
 class Hero{
@@ -82,7 +83,7 @@ class Hero{
   }
   draw(){
 	this.sprite.updateFrame();
-	this.sprite.drawImg(this.x*SPRITE_WIDTH,this.y*SPRITE_WIDTH,this.colors,this.sprite.frame);
+	this.sprite.drawImg(this.x*SPRITE_WIDTH,this.y*SPRITE_WIDTH,this.colors);
 
   };
   update(){
@@ -93,10 +94,14 @@ class Hero{
 function updateGame(){
 SPRITES.spikeUP.updateFrame()
 SPRITES.spikeDWN.updateFrame()
+SPRITES.spikeR.updateFrame()
+SPRITES.spikeL.updateFrame()
+SPRITES.zombie.updateFrame()
 }
 
 function drawGame(){
 player.draw()
+SPRITES.wall.drawImg(64,32,[COLORS.black,COLORS.red])
 SPRITES.wall.drawImg(8,0,[COLORS.black,COLORS.red])
 SPRITES.wall.drawImg(16,0,[COLORS.black,COLORS.red])
 SPRITES.wall.drawImg(24,0,[COLORS.black,COLORS.red])
@@ -108,12 +113,14 @@ SPRITES.wall.drawImg(0,40,[COLORS.black,COLORS.red])
 SPRITES.wall.drawImg(0,48,[COLORS.black,COLORS.red])
 SPRITES.wall.drawImg(8,56,[COLORS.black,COLORS.red])
 SPRITES.wall.drawImg(16,56,[COLORS.black,COLORS.red])
-SPRITES.wall2.drawImg(0,56,[COLORS.black,COLORS.red])
-SPRITES.wall2.drawImg(0,0,[COLORS.black,COLORS.red])
-SPRITES.wall2.drawImg(32,0,[COLORS.black,COLORS.red])
+SPRITES.wall.drawImg(0,56,[COLORS.black,COLORS.red],2)
+SPRITES.wall.drawImg(0,0,[COLORS.black,COLORS.red],2)
+SPRITES.wall.drawImg(32,0,[COLORS.black,COLORS.red],2)
 SPRITES.spikeUP.drawImg(32,8,[COLORS.black,COLORS.white],SPRITES.spikeUP.frame)
 SPRITES.spikeDWN.drawImg(16,48,[COLORS.black,COLORS.white],SPRITES.spikeDWN.frame)
-
+SPRITES.spikeR.drawImg(56,32,[COLORS.black,COLORS.white],SPRITES.spikeR.frame)
+SPRITES.spikeL.drawImg(8,16,[COLORS.black,COLORS.white],SPRITES.spikeL.frame)
+SPRITES.zombie.drawImg(56,8,[COLORS.Dgreen,COLORS.Lgreen],SPRITES.zombie.frame)
 }
 
 function mainloop(){
