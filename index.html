@@ -5,8 +5,7 @@ canvas {
 	display:block;
 	background:black;
 	user-select:none;
-	margin-top:100px;
-}
+	}
 *{
 	margin: 0;
    	padding: 0;
@@ -20,7 +19,7 @@ canvas {
 
 <script>
 
-const SCALE = 5;
+const SCALE = 5, SPRITE_WIDTH = 8;
 
 const COLORS = {
 white	:'white',
@@ -35,14 +34,65 @@ Dgrey	:'#787878',
 cyan	:'#a4e4fc', 
 }
 
+
 const SPRITES = {
 
 player	:
 	[
-	[],[],[]
+	[4,4]
+	],
+wall	:
+	[
+	[0,1,7,3,'red'],[0,5,3,3,'red'],[4,5,4,3,'red']
+	],
+wall2	:
+	[
+	[-1,-1,10,10,'black'],[0,0,8,8,'red'],[1,1,6,6,'black'],[2,2,4,4,'red']
 	]
+}
+
+class Tile{
+  constructor(img){
+	this.img = img;
+  }
+  drawImg(x=0,y=0){
+	this.img.forEach(block => {
+		ctx.save()
+		ctx.translate(x,y)
+		ctx.fillStyle = block[4]
+		ctx.fillRect(block[0],block[1],block[2],block[3])
+		ctx.restore()
+	})
+  };
+}
+
+class Sprite extends Tile{
+  constructor(img,speed=0,frame=0){
+	super(img)
+	this.frame = frame;
+	this.maxFrame = img.length;
+	this.speed = speed;
+	this.time = 0;
+  }
+  updateFrame(){};
+  
+}
 
 
+class Actor{
+  constructor(){
+	this.x = 0
+	this.y = 0
+  }
+  draw(){
+	ctx.fillStyle = 'white';
+	ctx.fillRect(this.x,this.y,SPRITE_WIDTH,SPRITE_WIDTH)
+
+  };
+  update(){};
+}
+
+class Player extends Actor{
 
 }
 
@@ -53,12 +103,18 @@ canvas.width  *= SCALE;
 ctx.scale(SCALE,SCALE);
 
 
-
-
-
-
 function updateGame(){}
-function drawGame(){}
+
+function drawGame(){
+//hero.draw()
+obj.drawImg(8,0)
+obj.drawImg(16,0)
+obj.drawImg(24,0)
+obj.drawImg(32,0)
+test.drawImg()
+test.drawImg(40,0)
+
+}
 
 function mainloop(){
 ctx.clearRect(0,0,canvas.width,canvas.height)
@@ -66,6 +122,9 @@ updateGame();
 drawGame();
 requestAnimationFrame(mainloop)
 }
+obj = new Tile(SPRITES.wall)
+test = new Tile(SPRITES.wall2)
+hero = new Player();
 mainloop()
 
 
