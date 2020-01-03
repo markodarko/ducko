@@ -88,9 +88,10 @@ class GameControl{
 
   resetLevel(){
 	this.LEVEL = {
-	  player:[],
+	  player: [],
 	  enemies:[],
-	  walls:[]
+	  walls:  [],
+	  wallsFG:[]
 	}
   }
 
@@ -101,9 +102,25 @@ class GameControl{
   update(){
 	player.update()
   }
+  buildLevel(){
+  }
 }
 
+const LEVEL_DATA = {
+  0:[
+	'11111111'+
+	'1......1'+
+	'1......1'+
+	'1...p.11'+
+	'11.....1'+
+	'1.z....1'+
+	'1....z.1'+
+	'11111111'
+    ],
+  1:[]
 
+
+}
 
 function updateGame(){
 player.update()
