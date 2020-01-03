@@ -18,7 +18,7 @@ canvas {
 <script src='controls.js'></script>
 <script src='image_data.js'></script>
 <script>
-
+const LEFT = 37, RIGHT = 39, UP = 38, DOWN = 40;
 const SCALE = 5, SPRITE_WIDTH = 8;
 var canvas = document.getElementById('gamewindow');
 var ctx = canvas.getContext('2d');
@@ -71,56 +71,96 @@ spikeUP	:new Sprite(IMAGES.spikeUP),
 spikeDWN:new Sprite(IMAGES.spikeDWN),
 spikeR	:new Sprite(IMAGES.spikeR),
 spikeL	:new Sprite(IMAGES.spikeL),
-zombie	:new Sprite(IMAGES.zombie)
+zombie	:new Sprite(IMAGES.zombie),
+knight	:new Sprite(IMAGES.knight),
+goblin	:new Sprite(IMAGES.goblin)
 }
 
-class Hero{
+class Actor{
   constructor(x,y){
-	this.sprite = SPRITES.player;
-	this.x = x;
+  	this.x = x;
 	this.y = y;
-	this.colors = [COLORS.Dgrey,COLORS.orange];
   }
   draw(){
 	this.sprite.updateFrame();
 	this.sprite.drawImg(this.x*SPRITE_WIDTH,this.y*SPRITE_WIDTH,this.colors);
+  };
+}
 
+class Hero extends Actor{
+  constructor(x,y){
+	super(x,y);
+	this.sprite = SPRITES.player;
+	this.colors = [COLORS.Dgrey,COLORS.orange];
+  }
+  update(){ 
+	if (controller.getkeypress(RIGHT))this.x += 1;
+	if (controller.getkeypress(LEFT))this.x -= 1;
+	if (controller.getkeypress(UP))this.y -= 1;
+	if (controller.getkeypress(DOWN))this.y += 1;
+	if (this.y > 8) this.y = 0;
+	if (this.y < 0) this.y = 8;
+	if (this.x > 15) this.x = 0;
+	if (this.x < 0) this.x = 15;
   };
-  update(){
-  };
+}
+
+class Zombie extends Actor{
+  constructor(x,y){
+	super(x,y);
+	this.sprite = SPRITES.knight;
+	this.colors = [COLORS.Dgreen,COLORS.Lgreen]
+  }
+  update(){}
+}
+
+class Goblin extends Actor{
+  constructor(x,y){
+	super(x,y);
+	this.sprite = SPRITES.goblin;
+	this.colors = [COLORS.Lgreen,COLORS.green,COLORS.Dgreen,COLORS.Dgreen]
+	//this.colors = [COLORS.Lgreen,COLORS.green,COLORS.black,COLORS.orange]
+	//this.colors = [COLORS.Lgreen,COLORS.Lgreen,COLORS.black,COLORS.Lgreen]
+  }
+  update(){}
 }
 
 
 function updateGame(){
+player.update()
 SPRITES.spikeUP.updateFrame()
 SPRITES.spikeDWN.updateFrame()
 SPRITES.spikeR.updateFrame()
 SPRITES.spikeL.updateFrame()
-SPRITES.zombie.updateFrame()
 }
 
 function drawGame(){
-player.draw()
-SPRITES.wall.drawImg(64,32,[COLORS.black,COLORS.red])
-SPRITES.wall.drawImg(8,0,[COLORS.black,COLORS.red])
-SPRITES.wall.drawImg(16,0,[COLORS.black,COLORS.red])
-SPRITES.wall.drawImg(24,0,[COLORS.black,COLORS.red])
-SPRITES.wall.drawImg(0,8,[COLORS.black,COLORS.red])
-SPRITES.wall.drawImg(0,16,[COLORS.black,COLORS.red])
-SPRITES.wall.drawImg(0,24,[COLORS.black,COLORS.red])
-SPRITES.wall.drawImg(0,32,[COLORS.black,COLORS.red])
-SPRITES.wall.drawImg(0,40,[COLORS.black,COLORS.red])
-SPRITES.wall.drawImg(0,48,[COLORS.black,COLORS.red])
-SPRITES.wall.drawImg(8,56,[COLORS.black,COLORS.red])
-SPRITES.wall.drawImg(16,56,[COLORS.black,COLORS.red])
-SPRITES.wall.drawImg(0,56,[COLORS.black,COLORS.red],2)
-SPRITES.wall.drawImg(0,0,[COLORS.black,COLORS.red],2)
-SPRITES.wall.drawImg(32,0,[COLORS.black,COLORS.red],2)
-SPRITES.spikeUP.drawImg(32,8,[COLORS.black,COLORS.white],SPRITES.spikeUP.frame)
-SPRITES.spikeDWN.drawImg(16,48,[COLORS.black,COLORS.white],SPRITES.spikeDWN.frame)
-SPRITES.spikeR.drawImg(56,32,[COLORS.black,COLORS.white],SPRITES.spikeR.frame)
-SPRITES.spikeL.drawImg(8,16,[COLORS.black,COLORS.white],SPRITES.spikeL.frame)
-SPRITES.zombie.drawImg(56,8,[COLORS.Dgreen,COLORS.Lgreen],SPRITES.zombie.frame)
+ 
+  SPRITES.wall.drawImg(64,32,[COLORS.black,COLORS.red])
+  SPRITES.wall.drawImg(8,0,[COLORS.black,COLORS.red])
+  SPRITES.wall.drawImg(16,0,[COLORS.black,COLORS.red])
+  SPRITES.wall.drawImg(24,0,[COLORS.black,COLORS.red])
+  SPRITES.wall.drawImg(0,8,[COLORS.black,COLORS.red])
+  SPRITES.wall.drawImg(0,16,[COLORS.black,COLORS.red])
+  SPRITES.wall.drawImg(0,24,[COLORS.black,COLORS.red])
+  SPRITES.wall.drawImg(0,32,[COLORS.black,COLORS.red])
+  SPRITES.wall.drawImg(0,40,[COLORS.black,COLORS.red])
+  SPRITES.wall.drawImg(0,48,[COLORS.black,COLORS.red])
+  SPRITES.wall.drawImg(8,56,[COLORS.black,COLORS.red])
+  SPRITES.wall.drawImg(16,56,[COLORS.black,COLORS.red])
+
+  SPRITES.wall.drawImg(0,56,[COLORS.black,COLORS.red],2)
+  SPRITES.wall.drawImg(0,0,[COLORS.black,COLORS.red],2)
+  SPRITES.wall.drawImg(32,0,[COLORS.black,COLORS.red],2)
+  SPRITES.wall.drawImg(24,56,[COLORS.black,COLORS.red],2)
+
+  SPRITES.spikeUP.drawImg(32,8,[COLORS.black,COLORS.white],SPRITES.spikeUP.frame)
+  SPRITES.spikeDWN.drawImg(16,48,[COLORS.black,COLORS.white],SPRITES.spikeDWN.frame)
+  SPRITES.spikeR.drawImg(56,32,[COLORS.black,COLORS.white],SPRITES.spikeR.frame)
+  SPRITES.spikeL.drawImg(8,16,[COLORS.black,COLORS.white],SPRITES.spikeL.frame)
+  gob.draw()
+  zom.draw()
+  player.draw()
 }
 
 function mainloop(){
@@ -129,6 +169,8 @@ updateGame();
 drawGame();
 requestAnimationFrame(mainloop)
 }
+gob = new Goblin(10,4)
+zom = new Zombie(8,1)
 player = new Hero(5,4)
 mainloop()
 
