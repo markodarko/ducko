@@ -16,65 +16,20 @@ canvas {
 <canvas id='gamewindow' width = '128' height = '64'></canvas>
 </center>
 <script src='controls.js'></script>
-<script src='image_data.js'></script>
+<script src='gfx/image_data.js'></script>
+<script src='gfx/colors.js'></script>
+<script src='gfx/sprites.js'></script>
 <script>
+
 const LEFT = 37, RIGHT = 39, UP = 38, DOWN = 40;
 const SCALE = 5, SPRITE_WIDTH = 8;
+
 var canvas = document.getElementById('gamewindow');
 var ctx = canvas.getContext('2d');
 canvas.height *= SCALE;
 canvas.width  *= SCALE;
 ctx.scale(SCALE,SCALE);
 
-const COLORS = {
-white	:'white',
-black	:'black',
-red	:'#f83800',
-pink	:'#f87858',
-green	:'#00b800', 
-Lgreen	:'#b8f818',  
-Dgreen	:'#007800', 
-orange	:'#f8b800',
-Dgrey	:'#787878',
-cyan	:'#a4e4fc', 
-}
-
-class Sprite{
-  constructor(img,speed=30,frame=0){
-	this.img = img;
-	this.frame = frame;
-	this.maxFrame = img.frames || 0;
-	this.speed = speed;
-	this.time = 0;
-  }
-
-  drawImg(x=0,y=0,color=['black','red'],frame=this.frame){
-	this.img[frame].forEach(block => {
-		ctx.fillStyle = color[block[4]]
-		ctx.fillRect(block[0]+x,block[1]+y,block[2],block[3])
-	}) 
-  };
-
-  updateFrame(){
-	if (this.time >= this.speed) {
-	  this.time = 0;
-	  this.frame = (this.frame+1)%this.maxFrame;
-	}else this.time++
-  };
-}
-
-const SPRITES = {
-
-player	:new Sprite(IMAGES.player),
-wall	:new Sprite(IMAGES.wall),
-spikeUP	:new Sprite(IMAGES.spikeUP),
-spikeDWN:new Sprite(IMAGES.spikeDWN),
-spikeR	:new Sprite(IMAGES.spikeR),
-spikeL	:new Sprite(IMAGES.spikeL),
-zombie	:new Sprite(IMAGES.zombie),
-knight	:new Sprite(IMAGES.knight),
-goblin	:new Sprite(IMAGES.goblin)
-}
 
 class Actor{
   constructor(x,y){
@@ -108,7 +63,7 @@ class Hero extends Actor{
 class Zombie extends Actor{
   constructor(x,y){
 	super(x,y);
-	this.sprite = SPRITES.knight;
+	this.sprite = SPRITES.zombie;
 	this.colors = [COLORS.Dgreen,COLORS.Lgreen]
   }
   update(){}
@@ -124,6 +79,30 @@ class Goblin extends Actor{
   }
   update(){}
 }
+
+class GameControl{
+
+  constructor(){
+	this.resetLevel();
+  }
+
+  resetLevel(){
+	this.LEVEL = {
+	  player:[],
+	  enemies:[],
+	  walls:[]
+	}
+  }
+
+  draw(){
+	player.draw()
+  }
+
+  update(){
+	player.update()
+  }
+}
+
 
 
 function updateGame(){
@@ -165,10 +144,13 @@ function drawGame(){
 
 function mainloop(){
 ctx.clearRect(0,0,canvas.width,canvas.height)
-updateGame();
-drawGame();
+GAME.update();
+GAME.draw();
+//updateGame();
+//drawGame();
 requestAnimationFrame(mainloop)
 }
+var GAME = new GameControl()
 gob = new Goblin(10,4)
 zom = new Zombie(8,1)
 player = new Hero(5,4)
