@@ -15,7 +15,8 @@ class Sprite{
   };
 
   updateFrame(){
-	if (this.time >= this.speed) {
+	if (this.speed <= 0) return;
+	if (this.time > this.speed) {
 	  this.time = 0;
 	  this.frame = (this.frame+1)%this.maxFrame;
 	}else this.time++
@@ -25,7 +26,7 @@ class Sprite{
 const SPRITES = {
 
 player	:new Sprite(IMAGES.player),
-wall	:new Sprite(IMAGES.wall),
+wall	:new Sprite(IMAGES.wall,0),
 spikeUP	:new Sprite(IMAGES.spikeUP),
 spikeDWN:new Sprite(IMAGES.spikeDWN),
 spikeR	:new Sprite(IMAGES.spikeR),

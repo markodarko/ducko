@@ -30,12 +30,30 @@ canvas.height *= SCALE;
 canvas.width  *= SCALE;
 ctx.scale(SCALE,SCALE);
 
+class dashFX{
+  constructor(x,y,w,h){
+	this.x = x;this.y=y;this.w=w;this.h=h
+	this.dead = false;
+	this.time = 10;
+  }
+  update(){
+	if (this.time>0)this.time--;
+	else this.dead = true;
+  }
+  draw(){
+	if (this.dead)return;
+	ctx.fillStyle = 'white';
+	ctx.fillRect(this.x,this.y,this.w,this.h)
+  }
+}
 
 class Actor{
-  constructor(x,y){
+  constructor(x,y,sprite = SPRITES.wall, colors = [COLORS.black,COLORS.red]){
   	this.x = x;
 	this.y = y;
-  }
+	this.sprite = sprite;
+	this.colors = colors; 
+	}
   draw(){
 	this.sprite.updateFrame();
 	this.sprite.drawImg(this.x*SPRITE_WIDTH,this.y*SPRITE_WIDTH,this.colors);
@@ -45,19 +63,41 @@ class Actor{
 class Hero extends Actor{
   constructor(x,y){
 	super(x,y);
+	this.dash = false;
 	this.sprite = SPRITES.player;
 	this.colors = [COLORS.Dgrey,COLORS.orange];
   }
+  draw(){
+	if (this.dash)this.dash.draw()
+	super.draw()
+  }
   update(){ 
-	if (controller.getkeypress(RIGHT))this.x += 1;
-	if (controller.getkeypress(LEFT))this.x -= 1;
-	if (controller.getkeypress(UP))this.y -= 1;
-	if (controller.getkeypress(DOWN))this.y += 1;
+	if (this.dash)this.dash.update()
+	let oldx = this.x, oldy=this.y;
+	if (controller.getkeypress(RIGHT)){
+	while(this.gridCheck(this.x+1,this.y)) this.x += 1;
+	this.dash = new dashFX(oldx*8,oldy*8,(this.x-oldx)*8,SPRITE_WIDTH)
+	}
+	if (controller.getkeypress(LEFT)){
+	while(this.gridCheck(this.x-1,this.y)) this.x -= 1;
+	this.dash = new dashFX((oldx+1)*8,oldy*8,(this.x-oldx)*8,SPRITE_WIDTH)
+	}
+	if (controller.getkeypress(UP)){
+	while(this.gridCheck(this.x,this.y-1))this.y -= 1;
+	this.dash = new dashFX(oldx*8,(oldy+1)*8,SPRITE_WIDTH,(this.y-oldy)*8)
+	}
+	if (controller.getkeypress(DOWN)){
+	while(this.gridCheck(this.x,this.y+1))this.y += 1;
+	this.dash = new dashFX(oldx*8,oldy*8,SPRITE_WIDTH,(this.y-oldy)*8)
+	}
 	if (this.y > 8) this.y = 0;
 	if (this.y < 0) this.y = 8;
 	if (this.x > 15) this.x = 0;
 	if (this.x < 0) this.x = 15;
   };
+  gridCheck(x,y){
+	if (GAME.room[y][x] != 'wall') return true
+  }
 }
 
 class Zombie extends Actor{
@@ -84,30 +124,51 @@ class GameControl{
 
   constructor(){
 	this.resetLevel();
+	this.buildRoom(ROOMS[0]);
   }
 
   resetLevel(){
-	this.LEVEL = {
-	  player: [],
+	this.room = [[],[],[],[],[],[],[],[]];
+	this.actors = {
 	  enemies:[],
 	  walls:  [],
+	  stairs: [],
 	  wallsFG:[]
 	}
   }
 
   draw(){
-	player.draw()
+	const A = this.actors;
+	const OBJS = [...A.walls,...A.enemies,A.player];
+	OBJS.forEach(obj => {
+	  obj.draw();
+	})
   }
 
   update(){
-	player.update()
+	this.actors.player.update()
   }
-  buildLevel(){
+  buildRoom(map){
+	const WIDTH = 8;
+	for(let row = 0; row < WIDTH; row++){
+	  for (let col = 0; col < WIDTH; col++){
+		switch(map[row*WIDTH + col]){
+		  case '1': 
+			this.room[row].push('wall')
+			this.actors.walls.push(new Actor(col,row))
+		  break;
+		  case 'p':
+			this.actors.player = new Hero(col,row)
+		  default: this.room[row].push('empty')
+
+		}
+	  }	
+	}
   }
 }
 
-const LEVEL_DATA = {
-  0:[
+const ROOMS = {
+  0:
 	'11111111'+
 	'1......1'+
 	'1......1'+
@@ -116,61 +177,17 @@ const LEVEL_DATA = {
 	'1.z....1'+
 	'1....z.1'+
 	'11111111'
-    ],
-  1:[]
-
-
-}
-
-function updateGame(){
-player.update()
-SPRITES.spikeUP.updateFrame()
-SPRITES.spikeDWN.updateFrame()
-SPRITES.spikeR.updateFrame()
-SPRITES.spikeL.updateFrame()
-}
-
-function drawGame(){
- 
-  SPRITES.wall.drawImg(64,32,[COLORS.black,COLORS.red])
-  SPRITES.wall.drawImg(8,0,[COLORS.black,COLORS.red])
-  SPRITES.wall.drawImg(16,0,[COLORS.black,COLORS.red])
-  SPRITES.wall.drawImg(24,0,[COLORS.black,COLORS.red])
-  SPRITES.wall.drawImg(0,8,[COLORS.black,COLORS.red])
-  SPRITES.wall.drawImg(0,16,[COLORS.black,COLORS.red])
-  SPRITES.wall.drawImg(0,24,[COLORS.black,COLORS.red])
-  SPRITES.wall.drawImg(0,32,[COLORS.black,COLORS.red])
-  SPRITES.wall.drawImg(0,40,[COLORS.black,COLORS.red])
-  SPRITES.wall.drawImg(0,48,[COLORS.black,COLORS.red])
-  SPRITES.wall.drawImg(8,56,[COLORS.black,COLORS.red])
-  SPRITES.wall.drawImg(16,56,[COLORS.black,COLORS.red])
-
-  SPRITES.wall.drawImg(0,56,[COLORS.black,COLORS.red],2)
-  SPRITES.wall.drawImg(0,0,[COLORS.black,COLORS.red],2)
-  SPRITES.wall.drawImg(32,0,[COLORS.black,COLORS.red],2)
-  SPRITES.wall.drawImg(24,56,[COLORS.black,COLORS.red],2)
-
-  SPRITES.spikeUP.drawImg(32,8,[COLORS.black,COLORS.white],SPRITES.spikeUP.frame)
-  SPRITES.spikeDWN.drawImg(16,48,[COLORS.black,COLORS.white],SPRITES.spikeDWN.frame)
-  SPRITES.spikeR.drawImg(56,32,[COLORS.black,COLORS.white],SPRITES.spikeR.frame)
-  SPRITES.spikeL.drawImg(8,16,[COLORS.black,COLORS.white],SPRITES.spikeL.frame)
-  gob.draw()
-  zom.draw()
-  player.draw()
 }
 
 function mainloop(){
 ctx.clearRect(0,0,canvas.width,canvas.height)
 GAME.update();
 GAME.draw();
-//updateGame();
-//drawGame();
 requestAnimationFrame(mainloop)
 }
 var GAME = new GameControl()
 gob = new Goblin(10,4)
 zom = new Zombie(8,1)
-player = new Hero(5,4)
 mainloop()
 
 
