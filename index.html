@@ -45,12 +45,15 @@ class dashFX{
   draw(){
 	if (this.alpha <= 0)return;
 	ctx.globalAlpha = this.alpha;
-	ctx.fillStyle = 'white';
+	ctx.fillStyle = COLORS.Dgrey;
 	ctx.fillRect(this.x,this.y,this.w,this.h)
 	ctx.globalAlpha = 1;
   }
   reset(x,y,w,h,alpha){
-	this.x = x;this.y=y;this.w=w;this.h=h;
+	this.x = x*SPRITE_WIDTH;
+	this.y=y*SPRITE_WIDTH;
+	this.w=w*SPRITE_WIDTH;
+	this.h=h*SPRITE_WIDTH;
 	this.alpha = alpha;
   }
 }
@@ -101,22 +104,28 @@ class Hero extends Actor{
   }
   checkX(dir){
 	let oldx = this.x, offset = dir < 0;
-	while(this.gridCheck(this.x+dir,this.y)) this.x += dir;
-	this.dash.reset((oldx+offset)*8,this.y*8,(this.x-oldx)*8,SPRITE_WIDTH,2)
+	while(this.gridCheck(this.x+dir,this.y)) 
+	this.x += dir;
+
+	this.dash.reset(oldx+offset,this.y,this.x-oldx,1,2)
   }
   checkY(dir){
 	let oldy = this.y, offset = dir < 0;
-	while(this.gridCheck(this.x,this.y+dir))this.y += dir;
-	this.dash.reset(this.x*8,(oldy+offset)*8,SPRITE_WIDTH,(this.y-oldy)*8,2)
+	while(this.gridCheck(this.x,this.y+dir))
+	this.y += dir;
+
+	this.dash.reset(this.x,oldy+offset,1,this.y-oldy,2)
   }
   gridCheck(x,y){
 	if (GAME.room[y][x] != 'wall') return true
   }
   screenWrap(){
 	if (this.y > 8) this.y = 0;
-	if (this.y < 0) this.y = 8;
-	if (this.x > 15) this.x = 0;
-	if (this.x < 0) this.x = 15;
+	else if (this.y < 1) this.y = 8;
+	else if (this.x > 8) this.x = 0;
+	else if (this.x < 1) this.x = 8;
+	else return false
+	return true
   }
 }
 
@@ -144,7 +153,7 @@ class GameControl{
 
   constructor(){
 	this.resetLevel();
-	this.buildRoom(ROOMS[0]);
+	this.buildRoom(ROOMS[1]);
   }
 
   resetLevel(){
@@ -196,6 +205,15 @@ const ROOMS = {
 	'11.....1'+
 	'1.z....1'+
 	'1....z.1'+
+	'11111111'
+	,
+  1:	'11111111'+
+	'1......1'+
+	'1....1.1'+
+	'1..11111'+
+	'11.....1'+
+	'1p1....1'+
+	'1......1'+
 	'11111111'
 }
 
