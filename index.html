@@ -26,69 +26,88 @@ const SCALE = 5, SPRITE_WIDTH = 8;
 
 var canvas = document.getElementById('gamewindow');
 var ctx = canvas.getContext('2d');
+
 canvas.height *= SCALE;
 canvas.width  *= SCALE;
 ctx.scale(SCALE,SCALE);
+ctx.translate(30,0);
+
 
 class dashFX{
-  constructor(x,y,w,h){
-	this.x = x;this.y=y;this.w=w;this.h=h
-	this.dead = false;
-	this.time = 10;
+  constructor(){
+	this.reset(0,0,0,0,0)
+	
   }
   update(){
-	if (this.time>0)this.time--;
-	else this.dead = true;
-  }
+	if (this.alpha>0)this.alpha-=.2;
+	}
+
   draw(){
-	if (this.dead)return;
+	if (this.alpha <= 0)return;
+	ctx.globalAlpha = this.alpha;
 	ctx.fillStyle = 'white';
 	ctx.fillRect(this.x,this.y,this.w,this.h)
+	ctx.globalAlpha = 1;
+  }
+  reset(x,y,w,h,alpha){
+	this.x = x;this.y=y;this.w=w;this.h=h;
+	this.alpha = alpha;
   }
 }
 
 class Actor{
-  constructor(x,y,sprite = SPRITES.wall, colors = [COLORS.black,COLORS.red]){
+  constructor(x,y){
   	this.x = x;
 	this.y = y;
-	this.sprite = sprite;
-	this.colors = colors; 
 	}
-  draw(){
-	this.sprite.updateFrame();
-	this.sprite.drawImg(this.x*SPRITE_WIDTH,this.y*SPRITE_WIDTH,this.colors);
+  draw(colors){
+	this.sprite.drawImg(this.x*SPRITE_WIDTH,this.y*SPRITE_WIDTH,colors);
   };
+  update(){
+	this.sprite.updateFrame();
+  }
 }
 
+class Wall extends Actor{
+  constructor(x,y){
+	super(x,y);
+	this.sprite = SPRITES.wall;
+	this.colors = [COLORS.black,COLORS.red];
+  }
+  draw(){
+	super.draw(this.colors)
+  }
+}
 class Hero extends Actor{
   constructor(x,y){
 	super(x,y);
-	this.dash = false;
+	this.dash = new dashFX();
 	this.sprite = SPRITES.player;
 	this.colors = [COLORS.Dgrey,COLORS.orange];
   }
   draw(){
-	if (this.dash)this.dash.draw()
-	super.draw()
+	this.dash.draw()
+	super.draw(this.colors)
   }
   update(){ 
-	if (this.dash)this.dash.update()
+	super.update();
+	this.dash.update();
 	let oldx = this.x, oldy=this.y;
 	if (controller.getkeypress(RIGHT)){
 	while(this.gridCheck(this.x+1,this.y)) this.x += 1;
-	this.dash = new dashFX(oldx*8,oldy*8,(this.x-oldx)*8,SPRITE_WIDTH)
+	this.dash.reset(oldx*8,oldy*8,(this.x-oldx)*8,SPRITE_WIDTH,2)
 	}
 	if (controller.getkeypress(LEFT)){
 	while(this.gridCheck(this.x-1,this.y)) this.x -= 1;
-	this.dash = new dashFX((oldx+1)*8,oldy*8,(this.x-oldx)*8,SPRITE_WIDTH)
+	this.dash.reset((oldx+1)*8,oldy*8,(this.x-oldx)*8,SPRITE_WIDTH,2)
 	}
 	if (controller.getkeypress(UP)){
 	while(this.gridCheck(this.x,this.y-1))this.y -= 1;
-	this.dash = new dashFX(oldx*8,(oldy+1)*8,SPRITE_WIDTH,(this.y-oldy)*8)
+	this.dash.reset(oldx*8,(oldy+1)*8,SPRITE_WIDTH,(this.y-oldy)*8,2)
 	}
 	if (controller.getkeypress(DOWN)){
 	while(this.gridCheck(this.x,this.y+1))this.y += 1;
-	this.dash = new dashFX(oldx*8,oldy*8,SPRITE_WIDTH,(this.y-oldy)*8)
+	this.dash.reset(oldx*8,oldy*8,SPRITE_WIDTH,(this.y-oldy)*8,2)
 	}
 	if (this.y > 8) this.y = 0;
 	if (this.y < 0) this.y = 8;
@@ -155,7 +174,7 @@ class GameControl{
 		switch(map[row*WIDTH + col]){
 		  case '1': 
 			this.room[row].push('wall')
-			this.actors.walls.push(new Actor(col,row))
+			this.actors.walls.push(new Wall(col,row))
 		  break;
 		  case 'p':
 			this.actors.player = new Hero(col,row)

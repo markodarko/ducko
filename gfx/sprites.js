@@ -1,10 +1,12 @@
 class Sprite{
-  constructor(img,speed=30,frame=0){
+  constructor(img,frame=0,anim=30){
 	this.img = img;
 	this.frame = frame;
-	this.maxFrame = img.frames || 0;
-	this.speed = speed;
-	this.time = 0;
+	if (anim){
+	  this.maxFrame = img.frames;
+	  this.speed = anim;
+	  this.time = 0;
+	}
   }
 
   drawImg(x=0,y=0,color=['black','red'],frame=this.frame){
@@ -26,7 +28,7 @@ class Sprite{
 const SPRITES = {
 
 player	:new Sprite(IMAGES.player),
-wall	:new Sprite(IMAGES.wall,0),
+wall	:new Sprite(IMAGES.wall,0,0),
 spikeUP	:new Sprite(IMAGES.spikeUP),
 spikeDWN:new Sprite(IMAGES.spikeDWN),
 spikeR	:new Sprite(IMAGES.spikeR),
