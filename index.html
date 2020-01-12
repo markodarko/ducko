@@ -95,24 +95,24 @@ class Hero extends Actor{
   update(){ 
 	this.dash.update();
 	super.update();
-	const horizontalSpeed = controller.getkeypress(RIGHT)-controller.getkeypress(LEFT)
-	const verticalSpeed = controller.getkeypress(DOWN)-controller.getkeypress(UP)
-	
+	//const horizontalSpeed = controller.getkeypress(RIGHT)-controller.getkeypress(LEFT)
+	//const verticalSpeed = controller.getkeypress(DOWN)-controller.getkeypress(UP)
+	const horizontalSpeed = (swipeControl.swipeDir == RIGHT)-(swipeControl.swipeDir == LEFT)
+	const verticalSpeed = (swipeControl.swipeDir == DOWN)-(swipeControl.swipeDir == UP)
 	if (horizontalSpeed) this.checkX(horizontalSpeed);
 	else if(verticalSpeed) this.checkY(verticalSpeed);
+	swipeControl.swipeDir = null
 	
   }
   checkX(dir){
 	let oldx = this.x, offset = dir < 0;
-	while(this.gridCheck(this.x+dir,this.y)) 
-	this.x += dir;
-
+	while(this.gridCheck(this.x+dir,this.y)) this.x += dir;
+	
 	this.dash.reset(oldx+offset,this.y,this.x-oldx,1,2)
   }
   checkY(dir){
 	let oldy = this.y, offset = dir < 0;
-	while(this.gridCheck(this.x,this.y+dir))
-	this.y += dir;
+	while(this.gridCheck(this.x,this.y+dir)) this.y += dir;
 
 	this.dash.reset(this.x,oldy+offset,1,this.y-oldy,2)
   }
@@ -153,7 +153,7 @@ class GameControl{
 
   constructor(){
 	this.resetLevel();
-	this.buildRoom(ROOMS[1]);
+	this.buildRoom(ROOMS[0]);
   }
 
   resetLevel(){

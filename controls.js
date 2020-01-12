@@ -23,4 +23,34 @@ return public
 window.addEventListener('keydown',controller.press)
 window.addEventListener('keyup',controller.release)
 
+var swipeControl = {
+  swipeDir:	null,
+  coord:	{x0:null,y0:null},
+  time:		null,
+  press: 	function(e){
+		  let c = swipeControl;
+		  c.coord.x0 = e.touches[0].clientX;
+		  c.coord.y0 = e.touches[0].clientY;
+		  c.time = new Date().getTime();
+		},
+  release:	function(e){
+		  let c = swipeControl; 
+		  let x = e.changedTouches[0].clientX,
+		      y = e.changedTouches[0].clientY,
+		      t = new Date().getTime()-c.time;
+		  if (t<500){
+		  	if      (x-c.coord.x0 >  100) c.swipeDir = 39;
+			else if (x-c.coord.x0 < -100) c.swipeDir = 37;
+			else if (y-c.coord.y0 >  100) c.swipeDir = 40;
+			else if (y-c.coord.y0 < -100) c.swipeDir = 38;
+		  }  
+		}
+  
+}
+
+//window.addEventListener('mousedown', swipeControl.press)
+//window.addEventListener('mouseup', swipeControl.release)
+window.addEventListener('touchstart', swipeControl.press)
+window.addEventListener('touchend', swipeControl.release)
+
 
