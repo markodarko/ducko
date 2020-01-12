@@ -90,32 +90,33 @@ class Hero extends Actor{
 	super.draw(this.colors)
   }
   update(){ 
-	super.update();
 	this.dash.update();
-	let oldx = this.x, oldy=this.y;
-	if (controller.getkeypress(RIGHT)){
-	while(this.gridCheck(this.x+1,this.y)) this.x += 1;
-	this.dash.reset(oldx*8,oldy*8,(this.x-oldx)*8,SPRITE_WIDTH,2)
-	}
-	if (controller.getkeypress(LEFT)){
-	while(this.gridCheck(this.x-1,this.y)) this.x -= 1;
-	this.dash.reset((oldx+1)*8,oldy*8,(this.x-oldx)*8,SPRITE_WIDTH,2)
-	}
-	if (controller.getkeypress(UP)){
-	while(this.gridCheck(this.x,this.y-1))this.y -= 1;
-	this.dash.reset(oldx*8,(oldy+1)*8,SPRITE_WIDTH,(this.y-oldy)*8,2)
-	}
-	if (controller.getkeypress(DOWN)){
-	while(this.gridCheck(this.x,this.y+1))this.y += 1;
-	this.dash.reset(oldx*8,oldy*8,SPRITE_WIDTH,(this.y-oldy)*8,2)
-	}
+	super.update();
+	const horizontalSpeed = controller.getkeypress(RIGHT)-controller.getkeypress(LEFT)
+	const verticalSpeed = controller.getkeypress(DOWN)-controller.getkeypress(UP)
+	
+	if (horizontalSpeed) this.checkX(horizontalSpeed);
+	else if(verticalSpeed) this.checkY(verticalSpeed);
+	
+  }
+  checkX(dir){
+	let oldx = this.x, offset = dir < 0;
+	while(this.gridCheck(this.x+dir,this.y)) this.x += dir;
+	this.dash.reset((oldx+offset)*8,this.y*8,(this.x-oldx)*8,SPRITE_WIDTH,2)
+  }
+  checkY(dir){
+	let oldy = this.y, offset = dir < 0;
+	while(this.gridCheck(this.x,this.y+dir))this.y += dir;
+	this.dash.reset(this.x*8,(oldy+offset)*8,SPRITE_WIDTH,(this.y-oldy)*8,2)
+  }
+  gridCheck(x,y){
+	if (GAME.room[y][x] != 'wall') return true
+  }
+  screenWrap(){
 	if (this.y > 8) this.y = 0;
 	if (this.y < 0) this.y = 8;
 	if (this.x > 15) this.x = 0;
 	if (this.x < 0) this.x = 15;
-  };
-  gridCheck(x,y){
-	if (GAME.room[y][x] != 'wall') return true
   }
 }
 
