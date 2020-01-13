@@ -5,6 +5,7 @@ canvas {
 	display:block;
 	background:black;
 	user-select:none;
+
 	}
 *{
 	margin: 0;
@@ -22,15 +23,17 @@ canvas {
 <script>
 
 const LEFT = 37, RIGHT = 39, UP = 38, DOWN = 40;
-const SCALE = 5, SPRITE_WIDTH = 8;
-
+//const SCALE = 4, SPRITE_WIDTH = 8;
 var canvas = document.getElementById('gamewindow');
 var ctx = canvas.getContext('2d');
 
-canvas.height *= SCALE;
-canvas.width  *= SCALE;
+const SPRITE_WIDTH = 8,C_HEIGHT = canvas.height,C_WIDTH=canvas.width;
+var SCALE = Math.trunc((window.innerHeight/canvas.height))
+canvas.height = C_HEIGHT * SCALE;
+canvas.width  = C_WIDTH * SCALE;
+ctx.save();
 ctx.scale(SCALE,SCALE);
-ctx.translate(30,0);
+//ctx.translate(30,0);
 
 canvas.addEventListener('touchmove', swipeControl.move)
 
@@ -219,6 +222,17 @@ const ROOMS = {
 }
 
 function mainloop(){
+var newSCALE = Math.trunc((window.innerHeight/C_HEIGHT))
+if (newSCALE != SCALE){
+	SCALE = newSCALE;
+	canvas.height = C_HEIGHT * SCALE;
+	canvas.width  = C_WIDTH * SCALE;
+	ctx.restore()
+	ctx.save()
+	ctx.scale(SCALE,SCALE)
+	
+
+}
 ctx.clearRect(0,0,canvas.width,canvas.height)
 GAME.update();
 GAME.draw();
