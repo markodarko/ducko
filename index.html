@@ -1,5 +1,7 @@
 <HTML>
-
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
 <style>
 
 canvas {
@@ -29,12 +31,14 @@ var canvas = document.getElementById('gamewindow');
 var ctx = canvas.getContext('2d');
 
 const SPRITE_WIDTH = 8,C_HEIGHT = canvas.height,C_WIDTH=canvas.width;
-var SCALE = Math.trunc((window.innerHeight/canvas.height))
+var SCALE = Math.ceil((window.innerHeight/canvas.height))
+
 canvas.height = C_HEIGHT * SCALE;
 canvas.width  = C_WIDTH * SCALE;
+
 ctx.save();
 ctx.scale(SCALE,SCALE);
-//ctx.translate(30,0);
+//ctx.translate(20,0);
 
 canvas.addEventListener('touchmove', swipeControl.move)
 
@@ -223,7 +227,7 @@ const ROOMS = {
 }
 
 function mainloop(){
-var newSCALE = Math.ceil((window.innerHeight/C_HEIGHT))
+var newSCALE = Math.ceil((window.visualViewport.height/C_HEIGHT))
 if (newSCALE != SCALE){
 	SCALE = newSCALE;
 	canvas.height = C_HEIGHT * SCALE;
