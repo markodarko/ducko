@@ -34,15 +34,16 @@ var swipeControl = {
 		  c.time = new Date().getTime();
 		},
   release:	function(e){
+		  let dist = 50;
 		  let c = swipeControl; 
 		  let x = e.changedTouches[0].clientX,
 		      y = e.changedTouches[0].clientY,
 		      t = new Date().getTime()-c.time;
 		  if (t<500){
-		  	if      (x-c.coord.x0 >  100) c.swipeDir = 39;
-			else if (x-c.coord.x0 < -100) c.swipeDir = 37;
-			else if (y-c.coord.y0 >  100) c.swipeDir = 40;
-			else if (y-c.coord.y0 < -100) c.swipeDir = 38;
+		  	if      (x-c.coord.x0 >  dist) c.swipeDir = 39;
+			else if (x-c.coord.x0 < -dist) c.swipeDir = 37;
+			else if (y-c.coord.y0 >  dist) c.swipeDir = 40;
+			else if (y-c.coord.y0 < -dist) c.swipeDir = 38;
 		  }  
 		},
   move:		function(e){
