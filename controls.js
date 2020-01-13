@@ -44,6 +44,9 @@ var swipeControl = {
 			else if (y-c.coord.y0 >  100) c.swipeDir = 40;
 			else if (y-c.coord.y0 < -100) c.swipeDir = 38;
 		  }  
+		},
+  move:		function(e){
+		  e.preventDefault();
 		}
   
 }
@@ -52,5 +55,6 @@ var swipeControl = {
 //window.addEventListener('mouseup', swipeControl.release)
 window.addEventListener('touchstart', swipeControl.press)
 window.addEventListener('touchend', swipeControl.release)
+
 
 

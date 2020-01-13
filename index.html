@@ -32,6 +32,7 @@ canvas.width  *= SCALE;
 ctx.scale(SCALE,SCALE);
 ctx.translate(30,0);
 
+canvas.addEventListener('touchmove', swipeControl.move)
 
 class dashFX{
   constructor(){
