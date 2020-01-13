@@ -1,6 +1,7 @@
 <HTML>
 
 <style>
+
 canvas {
 	display:block;
 	background:black;
@@ -28,7 +29,7 @@ var canvas = document.getElementById('gamewindow');
 var ctx = canvas.getContext('2d');
 
 const SPRITE_WIDTH = 8,C_HEIGHT = canvas.height,C_WIDTH=canvas.width;
-var SCALE = Math.trunc((window.innerHeight/canvas.height))
+var SCALE = Math.trunc((window.outerHeight/canvas.height))
 canvas.height = C_HEIGHT * SCALE;
 canvas.width  = C_WIDTH * SCALE;
 ctx.save();
@@ -222,16 +223,13 @@ const ROOMS = {
 }
 
 function mainloop(){
-var newSCALE = Math.trunc((window.innerHeight/C_HEIGHT))
+var newSCALE = Math.ceil((window.outerHeight/C_HEIGHT))
 if (newSCALE != SCALE){
 	SCALE = newSCALE;
 	canvas.height = C_HEIGHT * SCALE;
 	canvas.width  = C_WIDTH * SCALE;
 	ctx.restore()
-	ctx.save()
 	ctx.scale(SCALE,SCALE)
-	
-
 }
 ctx.clearRect(0,0,canvas.width,canvas.height)
 GAME.update();
