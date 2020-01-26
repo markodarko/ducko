@@ -39,7 +39,7 @@ var swipeControl = {
 		  let x = e.changedTouches[0].clientX,
 		      y = e.changedTouches[0].clientY,
 		      t = new Date().getTime()-c.time;
-		  if (t<500){
+		  if (t<400){
 		  	if      (x-c.coord.x0 >  dist) c.swipeDir = 39;
 			else if (x-c.coord.x0 < -dist) c.swipeDir = 37;
 			else if (y-c.coord.y0 >  dist) c.swipeDir = 40;
@@ -56,6 +56,7 @@ var swipeControl = {
 //window.addEventListener('mouseup', swipeControl.release)
 window.addEventListener('touchstart', swipeControl.press)
 window.addEventListener('touchend', swipeControl.release)
+
 
 
 

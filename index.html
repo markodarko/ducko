@@ -1,6 +1,6 @@
 <HTML>
 <head>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, height=device-height, initial-scale=1.0">
 </head>
 <style>
 
@@ -19,28 +19,15 @@ canvas {
 <center>
 <canvas id='gamewindow' width = '128' height = '64'></canvas>
 </center>
+<script src='constants.js'></script>
 <script src='controls.js'></script>
 <script src='gfx/image_data.js'></script>
 <script src='gfx/colors.js'></script>
 <script src='gfx/sprites.js'></script>
 <script>
 
-const LEFT = 37, RIGHT = 39, UP = 38, DOWN = 40;
-//const SCALE = 4, SPRITE_WIDTH = 8;
 var canvas = document.getElementById('gamewindow');
 var ctx = canvas.getContext('2d');
-
-const SPRITE_WIDTH = 8,C_HEIGHT = canvas.height,C_WIDTH=canvas.width;
-var SCALE = Math.floor((window.outerHeight/canvas.height))
-
-canvas.height = C_HEIGHT * SCALE;
-canvas.width  = C_WIDTH * SCALE;
-
-ctx.save();
-ctx.scale(SCALE,SCALE);
-//ctx.translate(20,0);
-
-canvas.addEventListener('touchmove', swipeControl.move)
 
 class dashFX{
   constructor(){
@@ -80,15 +67,24 @@ class Actor{
   }
 }
 
+class Stopper{
+	constructor(x,y){
+	this.x=x,this.y=y;
+  }
+  draw(){
+	ctx.fillStyle = COLORS.Dgrey
+	ctx.fillRect(this.x*SPRITE_WIDTH+3,this.y*SPRITE_WIDTH+3,2,2)
+  }
+}
 class Wall extends Actor{
   constructor(x,y){
 	super(x,y);
 	this.sprite = SPRITES.wall;
-	this.colors = [COLORS.black,COLORS.red];
   }
   draw(){
-	super.draw(this.colors)
+	super.draw(Wall.colors)
   }
+  static colors = [COLORS.black,COLORS.red];
 }
 class Hero extends Actor{
   constructor(x,y){
@@ -115,13 +111,18 @@ class Hero extends Actor{
   }
   checkX(dir){
 	let oldx = this.x, offset = dir < 0;
-	while(this.gridCheck(this.x+dir,this.y)) this.x += dir;
-	
+	while(this.gridCheck(this.x+dir,this.y)) {
+		this.x += dir;
+		if (GAME.room[this.y][this.x] == 'stopper') break;
+	}
 	this.dash.reset(oldx+offset,this.y,this.x-oldx,1,2)
   }
   checkY(dir){
 	let oldy = this.y, offset = dir < 0;
-	while(this.gridCheck(this.x,this.y+dir)) this.y += dir;
+	while(this.gridCheck(this.x,this.y+dir)){
+		this.y += dir;
+		if (GAME.room[this.y][this.x] == 'stopper') break;
+	}
 
 	this.dash.reset(this.x,oldy+offset,1,this.y-oldy,2)
   }
@@ -161,6 +162,8 @@ class Goblin extends Actor{
 class GameControl{
 
   constructor(){
+	this.scale = 5;
+	this.setScale(this.scale);
 	this.resetLevel();
 	this.buildRoom(ROOMS[0]);
   }
@@ -170,14 +173,14 @@ class GameControl{
 	this.actors = {
 	  enemies:[],
 	  walls:  [],
-	  stairs: [],
+	  roomBG: [],
 	  wallsFG:[]
 	}
   }
 
   draw(){
 	const A = this.actors;
-	const OBJS = [...A.walls,...A.enemies,A.player];
+	const OBJS = [...A.roomBG,...A.walls,...A.enemies,A.player];
 	OBJS.forEach(obj => {
 	  obj.draw();
 	})
@@ -195,6 +198,10 @@ class GameControl{
 			this.room[row].push('wall')
 			this.actors.walls.push(new Wall(col,row))
 		  break;
+		  case 's':
+			this.room[row].push('stopper')
+			this.actors.roomBG.push(new Stopper(col,row))
+		  break;
 		  case 'p':
 			this.actors.player = new Hero(col,row)
 		  default: this.room[row].push('empty')
@@ -202,6 +209,18 @@ class GameControl{
 		}
 	  }	
 	}
+  }
+  checkScale(){
+	let newSCALE = Math.floor((window.innerHeight/C_HEIGHT))
+	if (newSCALE != this.scale){
+	  this.setScale(newSCALE);
+	}
+  }
+  setScale(scale){
+	this.scale = scale;
+	  canvas.height = C_HEIGHT * this.scale;
+	  canvas.width  = C_WIDTH * this.scale;
+	  ctx.scale(this.scale,this.scale)
   }
 }
 
@@ -212,7 +231,7 @@ const ROOMS = {
 	'1......1'+
 	'1...p.11'+
 	'11.....1'+
-	'1.z....1'+
+	'1.zs...1'+
 	'1....z.1'+
 	'11111111'
 	,
@@ -227,22 +246,17 @@ const ROOMS = {
 }
 
 function mainloop(){
-var newSCALE = Math.floor((window.outerHeight/C_HEIGHT))
-if (newSCALE != SCALE){
-	SCALE = newSCALE;
-	canvas.height = C_HEIGHT * SCALE;
-	canvas.width  = C_WIDTH * SCALE;
-	ctx.restore()
-	ctx.scale(SCALE,SCALE)
-}
+//GAME.checkScale();
 ctx.clearRect(0,0,canvas.width,canvas.height)
 GAME.update();
 GAME.draw();
 requestAnimationFrame(mainloop)
 }
 var GAME = new GameControl()
-gob = new Goblin(10,4)
-zom = new Zombie(8,1)
+canvas.addEventListener('touchmove', swipeControl.move)
+window.visualViewport.addEventListener('resize',function(){
+	GAME.setScale(5)
+})
 mainloop()
 
 
