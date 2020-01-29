@@ -58,15 +58,21 @@ class Wall extends Actor{
 class Hero extends Actor{
   constructor(x,y){
 	super(x,y);
+	this.temptime = 10;
 	this.dash = new dashFX();
 	this.sprite = SPRITES.player;
-	this.colors = [COLORS.Dgrey,COLORS.orange];
+	this.colors = [COLORS.Dgrey,COLORS.orange,COLORS.white,COLORS.cyan];
   }
   draw(){
 	this.dash.draw()
 	super.draw(this.colors)
   }
   update(){ 
+	if (this.temptime == 0){
+	let c = this.colors.shift()
+	this.colors.push(c);
+	this.temptime = 10;
+	}else this.temptime--
 	this.dash.update();
 	super.update();
 	//const horizontalSpeed = controller.getkeypress(RIGHT)-controller.getkeypress(LEFT)
@@ -80,31 +86,26 @@ class Hero extends Actor{
   }
   checkX(dir){
 	let oldx = this.x, offset = dir < 0;
-	while(this.gridCheck(this.x+dir,this.y)) {
+	while(this.moveCheck(this.x+dir,this.y)) {
 		this.x += dir;
 		if (GAME.room[this.y][this.x] == 'stopper') break;
 	}
+	if (oldx != this.x)
 	this.dash.reset(oldx+offset,this.y,this.x-oldx,1,2)
   }
   checkY(dir){
 	let oldy = this.y, offset = dir < 0;
-	while(this.gridCheck(this.x,this.y+dir)){
+	while(this.moveCheck(this.x,this.y+dir)){
 		this.y += dir;
 		if (GAME.room[this.y][this.x] == 'stopper') break;
 	}
-
+	if (oldy != this.y)
 	this.dash.reset(this.x,oldy+offset,1,this.y-oldy,2)
   }
-  gridCheck(x,y){
+  moveCheck(x,y){
 	if (GAME.room[y][x] != 'wall') return true
   }
   screenWrap(){
-	if (this.y > 8) this.y = 0;
-	else if (this.y < 1) this.y = 8;
-	else if (this.x > 8) this.x = 0;
-	else if (this.x < 1) this.x = 8;
-	else return false
-	return true
   }
 }
 
