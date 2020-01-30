@@ -1,21 +1,11 @@
-class Sprite{
-  constructor(img,frame=0,anim=30){
-	this.img = img;
-	this.frame = frame;
-	if (anim){
-	  this.maxFrame = img.frames;
-	  this.speed = anim;
-	  this.time = 0;
-	}
+class Animation{
+  constructor(frames=2,speed=30){
+	this.frame = 0;
+	this.maxFrame = frames;
+	this.speed = speed;
+	this.time = 0;
+
   }
-
-  drawImg(x=0,y=0,color=['black','red'],frame=this.frame){
-	this.img[frame].forEach(block => {
-		ctx.fillStyle = color[block[4]]
-		ctx.fillRect(block[0]+x,block[1]+y,block[2],block[3])
-	}) 
-  };
-
   updateFrame(){
 	if (this.speed <= 0) return;
 	if (this.time > this.speed) {
@@ -25,10 +15,23 @@ class Sprite{
   };
 }
 
+class Sprite{
+  constructor(img){
+	this.img = img;
+  }
+
+  drawImg(x=0,y=0,color=['black','red'],frame=GAME.getFrame()){
+	this.img[frame].forEach(block => {
+		ctx.fillStyle = color[block[4]]
+		ctx.fillRect(block[0]+x,block[1]+y,block[2],block[3])
+	}) 
+  };
+}
+
 const SPRITES = {
 
 player	:new Sprite(IMAGES.player),
-wall	:new Sprite(IMAGES.wall,0,0),
+wall	:new Sprite(IMAGES.wall),
 spikeUP	:new Sprite(IMAGES.spikeUP),
 spikeDWN:new Sprite(IMAGES.spikeDWN),
 spikeR	:new Sprite(IMAGES.spikeR),

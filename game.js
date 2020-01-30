@@ -24,15 +24,17 @@ class dashFX{
 }
 
 class Actor{
-  constructor(x,y){
+  constructor(x,y,sprite = null){
   	this.x = x;
 	this.y = y;
+	this.sprite = sprite;
+	this.dead = false;
 	}
-  draw(colors){
-	this.sprite.drawImg(this.x*SPRITE_WIDTH,this.y*SPRITE_WIDTH,colors);
+  draw(colors,frame){
+	this.sprite.drawImg(this.x*SPRITE_WIDTH,this.y*SPRITE_WIDTH,colors,frame);
   };
-  update(){
-	this.sprite.updateFrame();
+  die(){
+	this.dead = true;
   }
 }
 
@@ -46,20 +48,19 @@ class Stopper{
   }
 }
 class Wall extends Actor{
-  constructor(x,y){
-	super(x,y);
-	this.sprite = SPRITES.wall;
+  constructor(x,y,frame = 0){
+	super(x,y,SPRITES.wall);
+	this.frame = frame;
   }
   draw(){
-	super.draw(Wall.colors)
+	super.draw(Wall.colors,this.frame)
   }
   static colors = [COLORS.black,COLORS.red];
 }
 class Hero extends Actor{
   constructor(x,y){
-	super(x,y);
+	super(x,y,SPRITES.player);
 	this.dash = new dashFX();
-	this.sprite = SPRITES.player;
 	this.setColors();
   }
   draw(){
@@ -67,11 +68,11 @@ class Hero extends Actor{
 	super.draw(this.colors)
   }
   update(){ 
-	if (this.sprite.time%5 == 0){
+	if (GAME.globalAnim.time%5 == 0){
 	this.colors.push(this.colors.shift());
 	}
 	this.dash.update();
-	super.update();
+	//super.update();
 	//const horizontalSpeed = controller.getkeypress(RIGHT)-controller.getkeypress(LEFT)
 	//const verticalSpeed = controller.getkeypress(DOWN)-controller.getkeypress(UP)
 	const horizontalSpeed = (swipeControl.swipeDir == RIGHT)-(swipeControl.swipeDir == LEFT)
@@ -111,8 +112,7 @@ class Hero extends Actor{
 
 class Zombie extends Actor{
   constructor(x,y){
-	super(x,y);
-	this.sprite = SPRITES.zombie;
+	super(x,y,SPRITES.zombie);
 	this.colors = [COLORS.Dgreen,COLORS.Lgreen]
   }
   update(){}
@@ -120,8 +120,7 @@ class Zombie extends Actor{
 
 class Goblin extends Actor{
   constructor(x,y){
-	super(x,y);
-	this.sprite = SPRITES.goblin;
+	super(x,y,SPRITES.goblin);
 	this.colors = [COLORS.Lgreen,COLORS.green,COLORS.Dgreen,COLORS.Dgreen]
 	//this.colors = [COLORS.Lgreen,COLORS.green,COLORS.black,COLORS.orange]
 	//this.colors = [COLORS.Lgreen,COLORS.Lgreen,COLORS.black,COLORS.Lgreen]
@@ -135,6 +134,7 @@ class GameControl{
 	this.scale = 5;
 	this.setScale(this.scale);
 	this.resetLevel();
+	this.globalAnim = new Animation()
 	this.buildRoom(ROOMS[0]);
   }
 
@@ -157,7 +157,11 @@ class GameControl{
   }
 
   update(){
+	this.globalAnim.updateFrame()
 	this.actors.player.update()
+  }
+  getFrame(){
+	return this.globalAnim.frame;
   }
   buildRoom(map){
 	const WIDTH = 8;
