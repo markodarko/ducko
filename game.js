@@ -58,21 +58,18 @@ class Wall extends Actor{
 class Hero extends Actor{
   constructor(x,y){
 	super(x,y);
-	this.temptime = 10;
 	this.dash = new dashFX();
 	this.sprite = SPRITES.player;
-	this.colors = [COLORS.Dgrey,COLORS.orange,COLORS.white,COLORS.cyan];
+	this.setColors();
   }
   draw(){
 	this.dash.draw()
 	super.draw(this.colors)
   }
   update(){ 
-	if (this.temptime == 0){
-	let c = this.colors.shift()
-	this.colors.push(c);
-	this.temptime = 10;
-	}else this.temptime--
+	if (this.sprite.time%5 == 0){
+	this.colors.push(this.colors.shift());
+	}
 	this.dash.update();
 	super.update();
 	//const horizontalSpeed = controller.getkeypress(RIGHT)-controller.getkeypress(LEFT)
@@ -106,6 +103,9 @@ class Hero extends Actor{
 	if (GAME.room[y][x] != 'wall') return true
   }
   screenWrap(){
+  }
+  setColors(){
+	this.colors = [COLORS.Dgrey,COLORS.orange,COLORS.white,COLORS.cyan];
   }
 }
 
