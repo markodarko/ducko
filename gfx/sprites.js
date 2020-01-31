@@ -38,5 +38,6 @@ spikeR	:new Sprite(IMAGES.spikeR),
 spikeL	:new Sprite(IMAGES.spikeL),
 zombie	:new Sprite(IMAGES.zombie),
 knight	:new Sprite(IMAGES.knight),
-goblin	:new Sprite(IMAGES.goblin)
+goblin	:new Sprite(IMAGES.goblin),
+exit    :new Sprite(IMAGES.exit)
 }

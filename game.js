@@ -1,3 +1,13 @@
+class Stopper{
+	constructor(x,y){
+	this.x=x,this.y=y;
+  }
+  draw(){
+	ctx.fillStyle = COLORS.Dgrey
+	ctx.fillRect(this.x*SPRITE_WIDTH+3,this.y*SPRITE_WIDTH+3,2,2)
+  }
+}
+
 class dashFX{
   constructor(){
 	this.reset(0,0,0,0,0)
@@ -38,15 +48,6 @@ class Actor{
   }
 }
 
-class Stopper{
-	constructor(x,y){
-	this.x=x,this.y=y;
-  }
-  draw(){
-	ctx.fillStyle = COLORS.Dgrey
-	ctx.fillRect(this.x*SPRITE_WIDTH+3,this.y*SPRITE_WIDTH+3,2,2)
-  }
-}
 class Wall extends Actor{
   constructor(x,y,frame = 0){
 	super(x,y,SPRITES.wall);
@@ -57,22 +58,36 @@ class Wall extends Actor{
   }
   static colors = [COLORS.black,COLORS.red];
 }
+
+class Exit extends Actor{
+  constructor(x,y,destination = 1){
+	super(x,y,SPRITES.exit)
+	this.colors = [COLORS.Dgrey,COLORS.red,COLORS.black]
+	this.nextRoom = destination;
+  }
+  draw(){
+	super.draw(this.colors,0)
+  }
+  update(){
+	const P = GAME.getPlayer();
+	if (this.x == P.x && this.y == P.y) GAME.roomCheck();
+  }
+}
+
 class Hero extends Actor{
   constructor(x,y){
 	super(x,y,SPRITES.player);
 	this.dash = new dashFX();
 	this.setColors();
+	this.powerup = false;
   }
   draw(){
 	this.dash.draw()
 	super.draw(this.colors)
   }
   update(){ 
-	if (GAME.globalAnim.time%5 == 0){
-	this.colors.push(this.colors.shift());
-	}
+	this.powerCheck();
 	this.dash.update();
-	//super.update();
 	//const horizontalSpeed = controller.getkeypress(RIGHT)-controller.getkeypress(LEFT)
 	//const verticalSpeed = controller.getkeypress(DOWN)-controller.getkeypress(UP)
 	const horizontalSpeed = (swipeControl.swipeDir == RIGHT)-(swipeControl.swipeDir == LEFT)
@@ -81,6 +96,10 @@ class Hero extends Actor{
 	else if(verticalSpeed) this.checkY(verticalSpeed);
 	swipeControl.swipeDir = null
 	
+  }
+  powerCheck(){
+	if (!this.powerup) return;
+	if (GAME.getTime()%5 == 0) this.colors.push(this.colors.shift());
   }
   checkX(dir){
 	let oldx = this.x, offset = dir < 0;
@@ -136,32 +155,50 @@ class GameControl{
 	this.resetLevel();
 	this.globalAnim = new Animation()
 	this.buildRoom(ROOMS[0]);
+	this.currentRoom = 0;
   }
-
+  roomCheck(){
+	if(ROOMS[this.currentRoom+1]!=undefined){
+	this.resetLevel();
+	this.currentRoom++;
+	this.buildRoom(ROOMS[this.currentRoom])
+	}
+  }
   resetLevel(){
 	this.room = [[],[],[],[],[],[],[],[]];
 	this.actors = {
 	  enemies:[],
-	  walls:  [],
 	  roomBG: [],
-	  wallsFG:[]
+	  walls:  [],
+	  wallsFG:[],
+	  roomFG:[]
 	}
   }
 
   draw(){
 	const A = this.actors;
-	const OBJS = [...A.roomBG,...A.walls,...A.enemies,A.player];
+	const OBJS = [...A.roomBG,...A.walls,...A.wallsFG,...A.roomFG,...A.enemies,A.player];
 	OBJS.forEach(obj => {
 	  obj.draw();
 	})
   }
 
   update(){
-	this.globalAnim.updateFrame()
-	this.actors.player.update()
+	this.globalAnim.updateFrame();
+	const A = this.actors;
+	const OBJS = [A.player,...A.roomFG];
+	OBJS.forEach(obj => {
+	  obj.update();
+	})
   }
   getFrame(){
 	return this.globalAnim.frame;
+  }
+  getTime(){
+	return this.globalAnim.time;
+  }
+  getPlayer(){
+	return this.actors.player;
   }
   buildRoom(map){
 	const WIDTH = 8;
@@ -175,6 +212,10 @@ class GameControl{
 		  case 's':
 			this.room[row].push('stopper')
 			this.actors.roomBG.push(new Stopper(col,row))
+		  break;
+		  case 'E':
+			this.room[row].push('exit')
+			this.actors.roomFG.push(new Exit(col,row))
 		  break;
 		  case 'p':
 			this.actors.player = new Hero(col,row)
@@ -194,19 +235,19 @@ class GameControl{
 	this.scale = scale;
 	  canvas.height = C_HEIGHT * this.scale;
 	  canvas.width  = C_WIDTH * this.scale;
-	  ctx.scale(this.scale,this.scale)
+	  ctx.scale(scale,scale)
   }
 }
 
 const ROOMS = {
   0:
 	'11111111'+
-	'1......1'+
+	'1.....E1'+
 	'1......1'+
 	'1...p.11'+
 	'11.....1'+
 	'1.zs...1'+
-	'1....z.1'+
+	'1E...z.1'+
 	'11111111'
 	,
   1:	'11111111'+
